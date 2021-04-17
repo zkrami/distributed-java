@@ -9,9 +9,10 @@ package cryptomonaie;
  *
  * @author Rami
  */
-public abstract   class Util {
-    
-    static void debug(Object ob , Exception ex){
-        
+public abstract class Util {
+
+    static void debug(Object ob, Exception ex) {
+        System.err.println(ob.getClass());
+        System.err.println(ex);
     }
 }

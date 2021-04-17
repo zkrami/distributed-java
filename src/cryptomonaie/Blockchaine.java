@@ -111,4 +111,10 @@ public class Blockchaine {
         return true;
 
     }
+
+    @Override
+    public int hashCode() {
+        return this.chaine.hashCode(); 
+    }
+    
 }
