@@ -1,13 +1,13 @@
-
 package cryptomonaie;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  *
  * @author Rami
  */
-public class Jonction {
+public class Jonction implements Serializable {
 
     Jonction precedent;
     Bloc bloc;
@@ -17,32 +17,6 @@ public class Jonction {
     public Jonction(Jonction precedent, Bloc bloc) {
         this.bloc = bloc;
         this.precedent = precedent;
-    }
-
-    static int countFirstZeros(int number) {
-        if (number == 0) {
-            return 0;
-        }
-        int cnt = 0;
-        while (number % 2 == 0) {
-            cnt++;
-            number /= 2;
-        }
-        return cnt;
-    }
-
-    // verifie si le hash de la jonction avec le sel qu'elle a et avec 
-    // le bloc cohérent a une diffculté égale à celui de parmètre. 
-    boolean inserable(int diffculte) {
-        return countFirstZeros(this.getHash()) == diffculte;
-    }
-
-    // verifie si le bloc est cohérent avec le dernier état 
-    // (en appliquant la transaction on aura un état égale à l'état de bloc)
-    boolean verif(Bloc bloc) {
-        
-        
-        return true;
     }
 
     public void setSel(int sel) {
@@ -69,6 +43,11 @@ public class Jonction {
 
         this.hash = precedent.hash * 31 + bloc.hashCode() * 31 * 31 + sel * 31 * 31 * 31;
 
+    }
+
+    @Override
+    public int hashCode() {
+        return this.getHash();
     }
 
 }

@@ -10,6 +10,39 @@ public class Blockchaine {
 
     ArrayList<Jonction> chaine;
 
+    void add(Bloc bloc, int sel, int difficulte) throws NonInserableException {
+        if (!verif(bloc)) {
+            throw new NonInserableException();
+        }
+        Jonction jon = new Jonction(this.getLast(), bloc);
+        jon.setSel(sel);
+        if (!inserable(jon, difficulte)) {
+            throw new NonInserableException();
+        }
+        chaine.add(jon);
+    }
+
+    Blockchaine(ArrayList<Jonction> chaine) {
+        this.chaine = chaine;
+    }
+
+    Blockchaine() {
+        chaine = new ArrayList<>();
+    }
+
+    void init() {
+        // l’initialisation de la répartition initiale  
+        // chaque individue commence avec un solde de 100 monnaie 
+
+        ArrayList<Integer> individues = new ArrayList<>(100);
+        for (int i = 0; i < individues.size(); i++) {
+            individues.set(i, 100);
+        }
+
+        Etat etat = new Etat(individues);
+        this.chaine.add(new Jonction(null, new Bloc(etat, null)));
+    }
+
     Jonction getLast() {
         return this.chaine.get(this.chaine.size() - 1);
     }
@@ -27,7 +60,7 @@ public class Blockchaine {
     }
 
     // verifie si le hash de la jonction avec le sel qu'elle a et avec 
-    // le bloc cohérent a une diffculté égale à celui de parmètre. 
+    // le bloc cohérent a une diffculté égale à celui du paramètre. 
     static boolean inserable(Jonction jonction, int diffculte) {
         return countFirstZeros(jonction.getHash()) == diffculte;
     }
