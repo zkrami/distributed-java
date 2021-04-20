@@ -10,10 +10,18 @@ public class Blockchaine {
 
     ArrayList<Jonction> chaine;
 
-    void add(Bloc bloc, int sel, int difficulte) throws NonInserableException {
-        if (!verif(bloc)) {
+    void add(Transaction transaction, int sel, int difficulte) throws NonInserableException {
+        Etat etat = new Etat(this.getLast().bloc.etat);
+        Bloc bloc = new Bloc(etat, transaction);
+        if (!validate(transaction)) {
             throw new NonInserableException();
         }
+        bloc.applyTransaction();
+
+//        if (!verif(bloc)) { // @TODO enleve cette condition, elle est redondante 
+//            throw new NonInserableException();
+//        }
+        
         Jonction jon = new Jonction(this.getLast(), bloc);
         jon.setSel(sel);
         if (!inserable(jon, difficulte)) {
@@ -65,56 +73,69 @@ public class Blockchaine {
         return countFirstZeros(jonction.getHash()) == diffculte;
     }
 
+    // verifie si la transaction est valide 
+    // (verifie si le bloc est cohérent avec le dernier état)
+    boolean validate(Transaction transaction) {
+        Jonction last = this.getLast();
+
+        if (!checkRange(transaction.payeur)) {
+            return false;
+        }
+        if (!checkRange(transaction.receveur)) {
+            return false;
+        }
+        // vaider si le payeur a le montant correspondant 
+        if (last.bloc.etat.monaie.get(transaction.payeur) < transaction.somme) {
+            return false;
+        }
+        return true;
+    }
+
     boolean checkRange(int index) {
         return index >= 0 && index < this.getLast().bloc.etat.monaie.size();
     }
+
     // verifie si le bloc est cohérent avec le dernier état 
     // (en appliquant la transaction on aura un état égale à l'état de bloc)
-
-    boolean verif(Bloc bloc) {
-        Jonction last = this.getLast();
-
-        // verifie si la transaction est valide 
-        if (!checkRange(bloc.transaction.payeur)) {
-            return false;
-        }
-        if (!checkRange(bloc.transaction.receveur)) {
-            return false;
-        }
-        // on peut aussi vaider si le payeur a le montant correspondant 
-        // ou on suppose que la dette est autorisé 
-
-        if (bloc.etat.monaie.size() != last.bloc.etat.monaie.size()) {
-            return false;
-        }
-
-        // verifie si l'état est coherent après la transaction 
-        for (int i = 0; i < last.bloc.etat.monaie.size(); i++) {
-
-            int current = last.bloc.etat.monaie.get(i);
-
-            if (i == bloc.transaction.payeur) {
-
-                current -= bloc.transaction.somme;
-
-            } else if (i == bloc.transaction.receveur) {
-
-                current += bloc.transaction.receveur;
-
-            }
-
-            if (current != bloc.etat.monaie.get(i)) {
-                return false;
-            }
-
-        }
-        return true;
-
-    }
+//    boolean verif(Bloc bloc) {
+//        Jonction last = this.getLast();
+//
+//        // verifie si la transaction est valid 
+//        if (!validate(bloc.transaction)) {
+//            return false;
+//        }
+//
+//        if (bloc.etat.monaie.size() != last.bloc.etat.monaie.size()) {
+//            return false;
+//        }
+//
+//        // verifie si l'état est coherent après la transaction 
+//        for (int i = 0; i < last.bloc.etat.monaie.size(); i++) {
+//
+//            int current = last.bloc.etat.monaie.get(i);
+//
+//            if (i == bloc.transaction.payeur) {
+//
+//                current -= bloc.transaction.somme;
+//
+//            } else if (i == bloc.transaction.receveur) {
+//
+//                current += bloc.transaction.receveur;
+//
+//            }
+//
+//            if (current != bloc.etat.monaie.get(i)) {
+//                return false;
+//            }
+//
+//        }
+//        return true;
+//
+//    }
 
     @Override
     public int hashCode() {
-        return this.chaine.hashCode(); 
+        return this.chaine.hashCode();
     }
-    
+
 }

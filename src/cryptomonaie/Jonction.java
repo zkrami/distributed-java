@@ -1,7 +1,6 @@
 package cryptomonaie;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 
 /**
  *

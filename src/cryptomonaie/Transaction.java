@@ -1,13 +1,23 @@
 package cryptomonaie;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Rami
  */
-public class Transaction {
-    int somme;    
+public class Transaction implements Serializable{
+    int somme;
+    int payeur;    
     int receveur; 
-    int payeur;
+
+    public Transaction(int somme, int payeur, int receveur) {
+        this.somme = somme;
+        this.payeur = payeur;
+        this.receveur = receveur;
+    }
+    
+    
 
     @Override
     public int hashCode() {

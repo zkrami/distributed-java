@@ -1,7 +1,6 @@
 package cryptomonaie;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 
 /**
  *
@@ -20,6 +19,14 @@ public class Bloc implements Serializable{
     @Override
     public int hashCode() {
         return this.etat.hashCode() * 31 + this.transaction.hashCode() * 31 * 31;
+    }
+    
+    void applyTransaction(){
+        int r = transaction.receveur; 
+        int s = transaction.somme;
+        int p = transaction.payeur; 
+        etat.monaie.set(p, etat.monaie.get(p) - s); 
+        etat.monaie.set(r, etat.monaie.get(r) + s); 
     }
 
 }
