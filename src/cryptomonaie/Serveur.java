@@ -5,6 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -54,8 +55,18 @@ public class Serveur {
         this.multicastExceutor = Executors.newSingleThreadExecutor(); 
     }
 
+    Date lastInsert = new java.util.Date();
     synchronized void nextDifficulte() {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        Date now = new java.util.Date();
+        long diff = now.getTime() - lastInsert.getTime(); 
+        diff /= (1e9 * 60); // difference in minutes 
+        if(diff <= 10){
+            difficulte++;            
+        }else {
+           difficulte -- ; 
+        }
+        blockchaine.setDifficulte(difficulte);
+        lastInsert = now ; 
     }
 
     void multicast(TransactionResponse response) {

@@ -8,21 +8,36 @@ import java.util.ArrayList;
  */
 public class Blockchaine {
 
+    int difficulte = 3; // la difficulte courante de la blockchaine initializé à 3 
+
+    public void setDifficulte(int difficulte) {
+        this.difficulte = difficulte;
+    }
+
+    public int getDifficulte() {
+        return difficulte;
+    }
+
     ArrayList<Jonction> chaine;
 
-    void add(Transaction transaction, int sel, int difficulte) throws NonInserableException {
-        Etat etat = new Etat(this.getLast().bloc.etat);
+    static Jonction newJonction(Jonction last, Transaction transaction) {
+
+        Etat etat = new Etat(last.bloc.etat);
         Bloc bloc = new Bloc(etat, transaction);
+
+        bloc.applyTransaction();
+        
+        return new Jonction(last, bloc);
+       
+    }
+
+    void add(Transaction transaction, int sel) throws NonInserableException {
         if (!validate(transaction)) {
             throw new NonInserableException();
         }
-        bloc.applyTransaction();
+        int difficulte = this.getDifficulte();
 
-//        if (!verif(bloc)) { // @TODO enleve cette condition, elle est redondante 
-//            throw new NonInserableException();
-//        }
-        
-        Jonction jon = new Jonction(this.getLast(), bloc);
+        Jonction jon = newJonction(this.getLast(), transaction);
         jon.setSel(sel);
         if (!inserable(jon, difficulte)) {
             throw new NonInserableException();
@@ -75,13 +90,12 @@ public class Blockchaine {
 
     // verifie si la transaction est valide 
     // (verifie si le bloc est cohérent avec le dernier état)
-    boolean validate(Transaction transaction) {
-        Jonction last = this.getLast();
+    static boolean validate(Transaction transaction, Jonction last) {
 
-        if (!checkRange(transaction.payeur)) {
+        if (!checkRange(transaction.payeur, last)) {
             return false;
         }
-        if (!checkRange(transaction.receveur)) {
+        if (!checkRange(transaction.receveur, last)) {
             return false;
         }
         // vaider si le payeur a le montant correspondant 
@@ -91,8 +105,12 @@ public class Blockchaine {
         return true;
     }
 
-    boolean checkRange(int index) {
-        return index >= 0 && index < this.getLast().bloc.etat.monaie.size();
+    boolean validate(Transaction transaction) {
+        return validate(transaction, this.getLast());
+    }
+
+    static boolean checkRange(int index, Jonction last) {
+        return index >= 0 && index < last.bloc.etat.monaie.size();
     }
 
     // verifie si le bloc est cohérent avec le dernier état 
@@ -132,7 +150,6 @@ public class Blockchaine {
 //        return true;
 //
 //    }
-
     @Override
     public int hashCode() {
         return this.chaine.hashCode();

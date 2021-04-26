@@ -1,7 +1,10 @@
 package cryptomonaie;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.Socket;
 
 /**
@@ -18,7 +21,7 @@ public class TransactionTask implements Runnable {
         this.serveur = serveur;
         this.mineur = mineur;
     }
-
+    
     @Override
     public void run() {
         Blockchaine chaine = serveur.blockchaine;
@@ -32,7 +35,7 @@ public class TransactionTask implements Runnable {
             ObjectInputStream is = new ObjectInputStream(mineur.getInputStream());
             transactionRequest = (TransactionRequest) is.readObject();
 
-            chaine.add(transactionRequest.transaction, transactionRequest.sel, serveur.difficulte);
+            chaine.add(transactionRequest.transaction, transactionRequest.sel);
             // si aucune exceptione n'est générée alors la transaction est valide 
             serveur.nextDifficulte();
             valid = true;
@@ -50,19 +53,22 @@ public class TransactionTask implements Runnable {
         // response 
         if (!mineur.isClosed()) {
             try {
-                ObjectOutputStream os = new ObjectOutputStream(mineur.getOutputStream());
+
+                OutputStreamWriter os = new OutputStreamWriter(mineur.getOutputStream());
                 if (valid) {
-                    TransactionResponse response = new TransactionResponse(transactionRequest.transaction, transactionRequest.sel, serveur.difficulte, true);
                     // fait un multicast
+                    TransactionResponse response = new TransactionResponse(transactionRequest.transaction, transactionRequest.sel, serveur.difficulte, true);
                     serveur.multicast(response);
 
                     // renvois la reponse au mineur 
-                    os.writeObject(response);
+                    os.write("VALID\n");
+                    os.flush();
                     os.close();
 
                 } else {
-                    TransactionResponse response = new TransactionResponse(false);
-                    os.writeObject(response);
+                    
+                    os.write("NOT_VALID\n");
+                    os.flush();
                     os.close();
                 }
             } catch (IOException ex) {
