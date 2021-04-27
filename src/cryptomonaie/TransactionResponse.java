@@ -3,8 +3,9 @@ package cryptomonaie;
 import java.io.Serializable;
 
 /**
+ * Une reponse à la requete de la transaction envoyé par le serveur aux mineurs.
+ * Il contient la transaction,le sel trouvé, et la nouvelle difficulté.
  *
- * @author Rami
  */
 public class TransactionResponse implements Serializable {
 

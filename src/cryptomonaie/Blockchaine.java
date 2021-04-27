@@ -2,10 +2,9 @@ package cryptomonaie;
 
 import java.util.ArrayList;
 
-/**
- *
- * @author Rami
- */
+/*
+*   Blockchaine se consiste d'une list de jonction 
+*/
 public class Blockchaine {
 
     int difficulte = 3; // la difficulte courante de la blockchaine initializé à 3 

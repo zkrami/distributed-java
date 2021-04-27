@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 /**
  *
- * @author Rami
+ * La jonction de la blockchaine il se consiste d'un block et un sel. 
  */
 public class Jonction implements Serializable {
 

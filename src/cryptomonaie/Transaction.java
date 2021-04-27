@@ -3,9 +3,8 @@ package cryptomonaie;
 import java.io.Serializable;
 
 /**
- *
- * @author Rami
- */
+ * La transaction se consiste d'un somme, un payeur, et un receveur. 
+*/
 public class Transaction implements Serializable{
     int somme;
     int payeur;    

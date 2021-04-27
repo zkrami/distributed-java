@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 /**
  *
- * @author Rami
+ * L'etat de la chaine il se consiste des individues et leurs montants. 
  */
 public class Etat implements Serializable, Cloneable {
 

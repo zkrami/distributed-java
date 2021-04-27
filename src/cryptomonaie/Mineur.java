@@ -6,16 +6,16 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.InputMismatchException;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-
 /**
  *
- * @author Rami
+ * Le programme du mineur
  */
 public class Mineur {
 
@@ -40,7 +40,7 @@ public class Mineur {
     volatile Queue<MiningTask> clientRequests = new LinkedList<>();
     ServerSocket clientRequestSocket;
     Thread clientRequestThread;
-    private final ExecutorService clientRequestExceutor;
+    private final ExecutorService miningExceutor;
 
     private final ExecutorService validationExceutor;
 
@@ -104,7 +104,7 @@ public class Mineur {
 
     public Mineur() throws IOException {
         this.clientRequestSocket = new ServerSocket(clientPort);
-        this.clientRequestExceutor = Executors.newSingleThreadExecutor();
+        this.miningExceutor = Executors.newSingleThreadExecutor();
         this.validationExceutor = Executors.newSingleThreadExecutor();
     }
 
@@ -113,24 +113,22 @@ public class Mineur {
         this.multicastThread = new Thread(() -> {
 
             try {
-                Socket socket = new Socket(this.serverHost, this.multicastPort);
-                while (true) {
-                    ObjectInputStream oi = new ObjectInputStream(socket.getInputStream());
-                    TransactionResponse response = (TransactionResponse) oi.readObject();
+                MineurServeur serveur = new MineurServeur(new Socket(this.serverHost, this.multicastPort));
+                while (!closed) {
+                    TransactionResponse response = (TransactionResponse) serveur.readTransactionResponse();
+
                     this.blockchaine.add(response.transaction, response.sel);
                     this.blockchaine.setDifficulte(response.diffculte);
-                    
-                    
-                    
+
                 }
 
             } catch (IOException ex) {
-                Util.debug(this, ex, "Le mineur a déconnecté de mutlicast cannal");
+                Util.debug(this, ex, "Le mineur a déconnecté du canal mutlicast");
             } catch (NonInserableException ex) {
-                 Util.debug(this, ex, "Le mineur n'a pas reussi à inserer un block venant de multicast ");
+                Util.debug(this, ex, "Le mineur n'a pas reussi à inserer un block venant du canal multicast ");
             } catch (ClassNotFoundException ex) {
-                 Util.debug(this, ex, "Le mineur n'a pas reussi à comprende un message de multicast ");
-            }finally{
+                Util.debug(this, ex, "Le mineur n'a pas reussi à comprende un message de multicast ");
+            } finally {
                 this.close();
             }
 
@@ -142,7 +140,7 @@ public class Mineur {
     }
 
     void submitMiningTask(MiningTask task) {
-        this.clientRequestExceutor.submit(task);
+        this.miningExceutor.submit(task);
     }
 
     void submitValidationTask(MiningTask task) {
@@ -152,9 +150,9 @@ public class Mineur {
     void listenClients() {
         this.clientRequestThread = new Thread(() -> {
             try {
-                while (true) {
+                while (!closed) {
                     Socket client = this.clientRequestSocket.accept();
-                    this.submitMiningTask(new MiningTask(this, client));
+                    this.submitMiningTask(new MiningTask(this, new MineurClient(client)));
                 }
 
             } catch (IOException ex) {
@@ -182,37 +180,43 @@ public class Mineur {
 
     }
 
-    public static void printMenu() {
-        System.out.println("Sassir 1 pour afficher le hash de blockchaine");
-    }
-
-    void start() {
+    void start() throws IOException, ClassNotFoundException {
         this.closed = false;
+        this.init();
         this.connectMulticast();
         this.listenClients();
 
     }
 
+    public static void printMenu() {
+        System.out.println("Sassir 1 pour afficher le hash de blockchaine");
+    }
+
     public static void main(String[] args) {
         try {
             Mineur mineur = new Mineur();
-            mineur.init();
             mineur.start();
-            
+
             Scanner scan = new Scanner(System.in);
             while (true) {
                 printMenu();
-                int chocie = scan.nextInt();
-                if (chocie == 0) {
+                int choice;
+                try {
+                    choice = scan.nextInt();
+                } catch (InputMismatchException ex) {
+                    System.err.println("Veuillez saisir seulement des entier merci pour ressayer ");
+                    continue;
+                }
+                if (choice == 0) {
                     mineur.close();
                     break;
-                } else if (chocie == 1) {
+                } else if (choice == 1) {
                     System.out.println("La blockchaine a un hash de " + mineur.blockchaine.hashCode());
                 }
 
             }
-        } catch (Exception ex) {
-            System.err.println("une erreur s'est produite");
+        } catch (IOException | ClassNotFoundException ex) {
+            System.err.println("Le mineur n'a pas réussi à se connecter au serveur ");
         }
 
     }
@@ -230,7 +234,7 @@ public class Mineur {
         this.interrupt = true;
         this.clientRequestThread.interrupt();
         this.multicastThread.interrupt();
-        this.clientRequestExceutor.shutdown();
+        this.miningExceutor.shutdown();
         this.validationExceutor.shutdown();
         this.closed = true;
     }

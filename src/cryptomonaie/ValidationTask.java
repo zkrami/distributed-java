@@ -1,15 +1,11 @@
 package cryptomonaie;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.ObjectOutputStream;
-import java.io.OutputStreamWriter;
 import java.net.Socket;
 
 /**
  *
- * @author Rami
+ * Le mineur lance cette tache pour valider le sel trouver avec le serveur
  */
 public class ValidationTask implements Runnable {
 
@@ -31,20 +27,7 @@ public class ValidationTask implements Runnable {
 
     // send a message to the client 
     void valid() {
-        Socket socket = task.client;
-
-        try {
-            OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream());
-            writer.write("VALID\n");
-            writer.flush();
-        } catch (Exception ex) {
-
-        } finally {
-            try {
-                socket.close();
-            } catch (Exception ex) {
-            }
-        }
+        task.client.tryValid();
     }
 
     boolean validate() { // verifie si la jonction est toujours valid selon le mineur 
@@ -64,20 +47,18 @@ public class ValidationTask implements Runnable {
 
     @Override
     public void run() {
-        
+
         Mineur mineur = task.mineur;
         try {
             // essais d'abord si la jonction est toujours valid sinon n'embete pas le servuer 
             if (validate()) {
                 // server validation 
-                Socket socket = new Socket(mineur.serverHost, mineur.transactionPort);
-                ObjectOutputStream os = new ObjectOutputStream(socket.getOutputStream());
-                TransactionRequest transactionRequest = new TransactionRequest(task.transaction, task.sel);
-                os.writeObject(transactionRequest); // send request 
-                os.flush();
+                MineurServeur serveur = new MineurServeur(new Socket(mineur.serverHost, mineur.transactionPort));
+                serveur.sendTransactionRequest(new TransactionRequest(task.transaction, task.sel)); 
+             
                 // wait for the response 
-                BufferedReader is = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                String response = is.readLine();
+                
+                String response = serveur.readResponse(); 
                 if (response.equals("VALID")) {
                     valid();
                 } else {

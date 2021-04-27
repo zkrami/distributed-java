@@ -2,15 +2,20 @@ package cryptomonaie;
 
 /**
  *
- * @author Rami
+ * Debug utils 
  */
 public abstract class Util {
 
+    /**
+     * Pour les exceptions connues
+     */
     static void debug(Object ob, Exception ex, String message) {
-        debug(ob, ex);
         System.err.println(message);
     }
 
+    /**
+     * Pour les exceptions non connues
+     */
     static void debug(Object ob, Exception ex) {
         System.err.println(ob.getClass());
         System.err.println(ex);

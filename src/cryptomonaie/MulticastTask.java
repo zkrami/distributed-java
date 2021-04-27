@@ -2,10 +2,11 @@ package cryptomonaie;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.net.SocketException;
 
 /**
  *
- * @author Rami
+ * Le serveur lance cette tache pour diffuser un message aux tous les mineurs connectés au canal de multicast. 
  */
 public class MulticastTask implements Runnable {
 
@@ -19,14 +20,15 @@ public class MulticastTask implements Runnable {
 
     @Override
     public void run() {
+
         serveur.mineurs.forEach((mineur) -> {
-            try (ObjectOutputStream os = new ObjectOutputStream(mineur.getOutputStream())) {
-                os.writeObject(response);
-                os.flush();
-            } catch (IOException ex) {
-                Util.debug(this, ex);
-            }
+           mineur.trySendResponse(response); 
         });
+        // si la connexion a été fermée alors retire de la canal 
+        serveur.mineurs.removeIf((t) -> {
+            return t.isClosed();
+        });
+
     }
 
 }

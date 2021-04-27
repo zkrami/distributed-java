@@ -1,37 +1,23 @@
 package cryptomonaie;
 
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
 
 /**
  *
- * @author Rami
+ * La tache de l'initialisation. (Dans le cas où le mineur s'est arreté il peut demander toute la chaine)
  */
 public class InitTask implements Runnable {
 
     Serveur serveur;
-    Socket mineur;
+    ServeurClient mineur;
 
-    public InitTask(Serveur serveur, Socket mineur) {
+    public InitTask(Serveur serveur, ServeurClient mineur) {
         this.serveur = serveur;
         this.mineur = mineur;
     }
 
     @Override
     public void run() {
-
-        try (ObjectOutputStream os = new ObjectOutputStream(mineur.getOutputStream())) {
-            os.writeObject(serveur.blockchaine.chaine);
-            os.close();
-        } catch (IOException ex) {
-            Util.debug(this, ex);
-        } finally {
-            try {
-                mineur.close();
-            } catch (IOException ex) {
-            }
-        }
+        mineur.trySendChaine(serveur.blockchaine.chaine);
 
     }
 }

@@ -2,10 +2,9 @@ package cryptomonaie;
 
 import java.io.Serializable;
 
-/**
- *
- * @author Rami
- */
+/*
+* Le Bloc se consiste de l'etat final et d'une transaction  
+*/
 public class Bloc implements Serializable{
 
     Etat etat; // l'état final 

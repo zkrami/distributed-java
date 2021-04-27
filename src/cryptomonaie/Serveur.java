@@ -6,13 +6,14 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
  *
- * @author Rami
+ * Le programme du serveur
  */
 public class Serveur {
 
@@ -21,7 +22,7 @@ public class Serveur {
 
     // la porte que le serveur va utiliser pour rajouter des mineurs pour les messages multicast 
     private final int multicastPort = 3333;
-    volatile ArrayList<Socket> mineurs = new ArrayList<>();
+    volatile ArrayList<ServeurClient> mineurs = new ArrayList<>();
     ServerSocket multicastSocket;
     Thread multicastThread;
 
@@ -49,24 +50,25 @@ public class Serveur {
         this.transactionExecutor = Executors.newSingleThreadExecutor(); // Tasks are guaranteed to execute * sequentially, and no more than one task will be active at any * given time.
 
         this.initSocket = new ServerSocket(this.initPort);
-        this.initExceutor = Executors.newSingleThreadExecutor(); 
+        this.initExceutor = Executors.newSingleThreadExecutor();
 
         this.multicastSocket = new ServerSocket(this.multicastPort);
-        this.multicastExceutor = Executors.newSingleThreadExecutor(); 
+        this.multicastExceutor = Executors.newSingleThreadExecutor();
     }
 
     Date lastInsert = new java.util.Date();
+
     synchronized void nextDifficulte() {
         Date now = new java.util.Date();
-        long diff = now.getTime() - lastInsert.getTime(); 
+        long diff = now.getTime() - lastInsert.getTime();
         diff /= (1e9 * 60); // difference in minutes 
-        if(diff <= 10){
-            difficulte++;            
-        }else {
-           difficulte -- ; 
+        if (diff <= 10) {
+            difficulte++;
+        } else {
+            difficulte--;
         }
         blockchaine.setDifficulte(difficulte);
-        lastInsert = now ; 
+        lastInsert = now;
     }
 
     void multicast(TransactionResponse response) {
@@ -85,7 +87,7 @@ public class Serveur {
 
                     Socket socket = this.multicastSocket.accept();
                     System.out.println("Un nouveau mineur a été connecté au canal de multitask");
-                    this.mineurs.add(socket);
+                    this.mineurs.add(new ServeurClient(socket)); 
 
                 } catch (SocketTimeoutException ex) {
 
@@ -115,7 +117,7 @@ public class Serveur {
 
                     Socket socket = this.initSocket.accept();
                     System.out.println("Un mineur demande l'état actuel de la blocchaine ");
-                    this.initExceutor.submit(new InitTask(this, socket));
+                    this.initExceutor.submit(new InitTask(this, new ServeurClient(socket)));
 
                 } catch (SocketTimeoutException ex) {
 
@@ -146,7 +148,7 @@ public class Serveur {
 
                     Socket socket = this.transactionSocket.accept();
                     System.out.println("Treatement d'une nouvelle transaction");
-                    this.transactionExecutor.submit(new TransactionTask(this, socket));
+                    this.transactionExecutor.submit(new TransactionTask(this, new ServeurClient(socket)));
 
                 } catch (SocketTimeoutException ex) {
 
@@ -186,21 +188,18 @@ public class Serveur {
 
     }
 
-    public static void printMenu() {
-
-        System.out.println("Sassir 1 pour afficher le hash de blockchaine");
-    }
-
     public void close() {
         this.interrupt = true;
 
         this.mineurs.forEach(mineurs -> {
-            try {
-                mineurs.close();
-            } catch (Exception ex) {
-            }
+            mineurs.close();
         });
         this.mineurs.clear();
+    }
+
+    public static void printMenu() {
+
+        System.out.println("Sassir 1 pour afficher le hash de blockchaine");
     }
 
     public static void main(String[] args) {
@@ -212,11 +211,17 @@ public class Serveur {
             serveur.listen();
             while (true) {
                 printMenu();
-                int chocie = scan.nextInt();
-                if (chocie == 0) {
+                int choice;
+                try {
+                    choice = scan.nextInt();
+                } catch (InputMismatchException ex) {
+                    System.err.println("Veuillez saisir seulement des entier merci pour ressayer ");
+                    continue;
+                }
+                if (choice == 0) {
                     serveur.close();
                     break;
-                } else if (chocie == 1) {
+                } else if (choice == 1) {
                     System.out.println("La blockchaine a un hash de " + serveur.blockchaine.hashCode());
                 }
 
