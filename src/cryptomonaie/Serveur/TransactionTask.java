@@ -1,9 +1,14 @@
-package cryptomonaie;
+package cryptomonaie.serveur;
 
+import cryptomonaie.Blockchaine;
+import cryptomonaie.NonInserableException;
+import cryptomonaie.TransactionRequest;
+import cryptomonaie.TransactionResponse;
+import cryptomonaie.Util;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.OutputStreamWriter;
-import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 
 /**
  *
@@ -24,6 +29,10 @@ public class TransactionTask implements Runnable {
     @Override
     public void run() {
         Blockchaine chaine = serveur.blockchaine;
+        try {  
+            Thread.sleep(1000);
+        } catch (InterruptedException ex) {
+        }
         boolean valid = false;
         try {
             // recuperer la reqeute du mineur 

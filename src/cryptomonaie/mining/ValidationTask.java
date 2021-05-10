@@ -1,5 +1,8 @@
-package cryptomonaie;
+package cryptomonaie.mining;
 
+import cryptomonaie.Blockchaine;
+import cryptomonaie.Jonction;
+import cryptomonaie.TransactionRequest;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -16,13 +19,22 @@ public class ValidationTask implements Runnable {
     }
 
     void notValid() {
+        System.err.println("La transaction a été refusé par le serveur  "); // @LOG
         Mineur mineur = this.task.mineur;
-        if (mineur._last != null) { // faut arreter le calcule car la dernière jonction n'est pas valid 
-            mineur.interrupt = true;
-            mineur.reset();
-        }
+        
         // refaire la tache 
         mineur.submitMiningTask(task);
+        
+        if (mineur._last != null) { 
+            // faut arreter le calcule car la dernière jonction n'est pas valid 
+            
+            mineur.interrupt = true;
+            mineur.reset();
+            // en consequence toutes les taches dans le queue de validation ne seront plus valides pour cela on vide le queue de validation             
+            mineur.resubmitValidation();
+            
+        }
+        
     }
 
     // send a message to the client 
@@ -30,7 +42,7 @@ public class ValidationTask implements Runnable {
         task.client.tryValid();
     }
 
-    boolean validate() { // verifie si la jonction est toujours valid selon le mineur 
+    /*    boolean validate() { // verifie si la jonction est toujours valid selon le mineur 
 
         Jonction last = this.task.mineur.getLast();
         if (Blockchaine.validate(task.transaction, last) == false) {
@@ -44,30 +56,25 @@ public class ValidationTask implements Runnable {
         return true;
 
     }
-
+     */
     @Override
     public void run() {
 
         Mineur mineur = task.mineur;
         try {
-            // essais d'abord si la jonction est toujours valid sinon n'embete pas le servuer 
-            if (validate()) {
-                // server validation 
-                MineurServeur serveur = new MineurServeur(new Socket(mineur.serverHost, mineur.transactionPort));
-                serveur.sendTransactionRequest(new TransactionRequest(task.transaction, task.sel)); 
-             
-                // wait for the response 
-                
-                String response = serveur.readResponse(); 
-                if (response.equals("VALID")) {
-                    valid();
-                } else {
-                    notValid();
-                }
 
+            // server validation 
+            MineurServeur serveur = new MineurServeur(new Socket(mineur.serverHost, mineur.transactionPort));
+            serveur.sendTransactionRequest(new TransactionRequest(task.transaction, task.sel));
+
+            // wait for the response 
+            String response = serveur.readResponse();
+            if (response.equals("VALID")) {
+                valid();
             } else {
                 notValid();
             }
+
         } catch (IOException ex) {
             // probleme de connexion refaire la tache 
             notValid();

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 /*
 *   Blockchaine se consiste d'une list de jonction 
-*/
+ */
 public class Blockchaine {
 
     int difficulte = 3; // la difficulte courante de la blockchaine initializé à 3 
@@ -17,20 +17,20 @@ public class Blockchaine {
         return difficulte;
     }
 
-    ArrayList<Jonction> chaine;
+    public ArrayList<Jonction> chaine;
 
-    static Jonction newJonction(Jonction last, Transaction transaction) {
+    public static Jonction newJonction(Jonction last, Transaction transaction) {
 
         Etat etat = new Etat(last.bloc.etat);
         Bloc bloc = new Bloc(etat, transaction);
 
         bloc.applyTransaction();
-        
+
         return new Jonction(last, bloc);
-       
+
     }
 
-    void add(Transaction transaction, int sel) throws NonInserableException {
+    public void add(Transaction transaction, int sel) throws NonInserableException {
         if (!validate(transaction)) {
             throw new NonInserableException();
         }
@@ -44,32 +44,32 @@ public class Blockchaine {
         chaine.add(jon);
     }
 
-    Blockchaine(ArrayList<Jonction> chaine) {
+    public Blockchaine(ArrayList<Jonction> chaine) {
         this.chaine = chaine;
     }
 
-    Blockchaine() {
+    public Blockchaine() {
         chaine = new ArrayList<>();
     }
 
-    void init() {
+    public void init() {
         // l’initialisation de la répartition initiale  
         // chaque individue commence avec un solde de 100 monnaie 
 
-        ArrayList<Integer> individues = new ArrayList<>(100);
-        for (int i = 0; i < individues.size(); i++) {
-            individues.set(i, 100);
+        ArrayList<Integer> individues = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            individues.add(100);
         }
 
         Etat etat = new Etat(individues);
         this.chaine.add(new Jonction(null, new Bloc(etat, null)));
     }
 
-    Jonction getLast() {
+    public Jonction getLast() {
         return this.chaine.get(this.chaine.size() - 1);
     }
 
-    static int countFirstZeros(int number) {
+    static int countFirstZeros(long number) {
         if (number == 0) {
             return 0;
         }
@@ -83,13 +83,13 @@ public class Blockchaine {
 
     // verifie si le hash de la jonction avec le sel qu'elle a et avec 
     // le bloc cohérent a une diffculté égale à celui du paramètre. 
-    static boolean inserable(Jonction jonction, int diffculte) {
+    public static boolean inserable(Jonction jonction, int diffculte) {
         return countFirstZeros(jonction.getHash()) == diffculte;
     }
 
     // verifie si la transaction est valide 
     // (verifie si le bloc est cohérent avec le dernier état)
-    static boolean validate(Transaction transaction, Jonction last) {
+    public static boolean validate(Transaction transaction, Jonction last) {
 
         if (!checkRange(transaction.payeur, last)) {
             return false;

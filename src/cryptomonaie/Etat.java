@@ -9,7 +9,7 @@ import java.util.ArrayList;
  */
 public class Etat implements Serializable, Cloneable {
 
-    ArrayList<Integer> monaie; // dont les indicies sont des individues
+    public ArrayList<Integer> monaie; // dont les indicies sont des individues
 
     Etat(ArrayList<Integer> monaie) {
         this.monaie = monaie;

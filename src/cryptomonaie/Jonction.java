@@ -4,14 +4,13 @@ import java.io.Serializable;
 
 /**
  *
- * La jonction de la blockchaine il se consiste d'un block et un sel. 
+ * La jonction de la blockchaine il se consiste d'un block et un sel.
  */
 public class Jonction implements Serializable {
 
     Jonction precedent;
-    Bloc bloc;
+    public Bloc bloc;
     int sel;
-    int hash = -1;
 
     public Jonction(Jonction precedent, Bloc bloc) {
         this.bloc = bloc;
@@ -26,27 +25,18 @@ public class Jonction implements Serializable {
         return sel;
     }
 
-    int getHash() {
-        if (this.hash == -1) { //  calcule le hash si il n'est pas calculé 
-            this.calcHash();
-        }
-        return this.hash;
-    }
+    long getHash() {
 
-    void calcHash() {
-
-        this.hash = 0;
         if (this.precedent == null) { // si premier block 
-            return;
+            return 0;
         }
-
-        this.hash = precedent.hash * 31 + bloc.hashCode() * 31 * 31 + sel * 31 * 31 * 31;
-
+        return precedent.getHash() * 31L + bloc.hashCode() * 31L * 31L + sel * 31L * 31L * 31L;
     }
+
 
     @Override
     public int hashCode() {
-        return this.getHash();
+        return (int)this.getHash();
     }
 
 }

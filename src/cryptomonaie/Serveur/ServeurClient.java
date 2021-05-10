@@ -1,5 +1,9 @@
-package cryptomonaie;
+package cryptomonaie.serveur;
 
+import cryptomonaie.Jonction;
+import cryptomonaie.TransactionRequest;
+import cryptomonaie.TransactionResponse;
+import cryptomonaie.Util;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -38,26 +42,38 @@ public class ServeurClient {
 
     }
 
-    void trySendResponse(TransactionResponse response) {
-        try (ObjectOutputStream os = new ObjectOutputStream(socket.getOutputStream())) {
+    ObjectOutputStream os = null;
+
+    boolean trySendResponse(TransactionResponse response) {
+
+        boolean sent = false;
+        try {
+            if (os == null) {
+                os = new ObjectOutputStream(socket.getOutputStream());
+            }
             os.writeObject(response);
             os.flush();
+        sent = true;
         } catch (SocketException ex) {
             Util.debug(this, ex, "Un mineur s'est déconnecté du canal multicast ");
         } catch (IOException ex) {
             Util.debug(this, ex);
         }
+        return sent;
     }
 
-    void trySendChaine(ArrayList<Jonction> chaine) {
+    boolean trySendChaine(ArrayList<Jonction> chaine) {
+        boolean sent = false;
         try (ObjectOutputStream os = new ObjectOutputStream(socket.getOutputStream())) {
             os.writeObject(chaine);
             os.close();
+            sent = true;
         } catch (IOException ex) {
             Util.debug(this, ex);
         } finally {
             this.close();
         }
+        return sent;
     }
 
     public boolean isClosed() {

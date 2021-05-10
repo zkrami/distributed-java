@@ -1,8 +1,7 @@
-package cryptomonaie;
+package cryptomonaie.serveur;
 
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.net.SocketException;
+import cryptomonaie.TransactionResponse;
+
 
 /**
  *

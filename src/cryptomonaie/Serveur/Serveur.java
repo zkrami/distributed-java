@@ -1,5 +1,8 @@
-package cryptomonaie;
+package cryptomonaie.serveur;
 
+import cryptomonaie.Blockchaine;
+import cryptomonaie.TransactionResponse;
+import cryptomonaie.Util;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -143,7 +146,6 @@ public class Serveur {
 
             this.transactionSocket.setSoTimeout(100);
             while (!interrupt) {
-
                 try {
 
                     Socket socket = this.transactionSocket.accept();
@@ -209,6 +211,7 @@ public class Serveur {
             System.out.println("La blockchaine a un hash de " + serveur.blockchaine.hashCode());
             Scanner scan = new Scanner(System.in);
             serveur.listen();
+           
             while (true) {
                 printMenu();
                 int choice;

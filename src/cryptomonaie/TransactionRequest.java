@@ -9,8 +9,8 @@ import java.io.Serializable;
 */
 public class TransactionRequest implements Serializable {
 
-    Transaction transaction;
-    int sel;
+    public Transaction transaction;
+    public  int sel;
 
     public TransactionRequest(Transaction transaction, int sel) {
         this.transaction = transaction;

@@ -1,5 +1,10 @@
-package cryptomonaie;
+package cryptomonaie.mining;
 
+import cryptomonaie.Blockchaine;
+import cryptomonaie.Jonction;
+import cryptomonaie.SelNotFoundException;
+import cryptomonaie.Transaction;
+import cryptomonaie.Util;
 import java.io.IOException;
 import java.net.SocketException;
 
@@ -14,7 +19,8 @@ public class MiningTask implements Runnable {
     Transaction transaction = null;
     boolean valideted = false;
     int sel; 
-
+    final int cores = 4; 
+    
     public MiningTask(Mineur mineur, MineurClient client) {
         this.mineur = mineur;
         this.client = client;
@@ -65,7 +71,7 @@ public class MiningTask implements Runnable {
             }
             
 
-            if (!valid) {
+            if (mineur.interrupt || !valid) {
                 throw new SelNotFoundException();
             }else{
                 mineur.submitValidationTask(this);

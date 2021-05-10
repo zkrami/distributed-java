@@ -1,9 +1,9 @@
-package cryptomonaie;
+package cryptomonaie.client;
 
+import cryptomonaie.Transaction;
+import cryptomonaie.Util;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /*
 * La tache pour envoyer une transaction demandée par le client au mineur 
@@ -11,19 +11,24 @@ import java.util.logging.Logger;
 public class ClientTransactionTask implements Runnable {
 
     Transaction transaction;
-
-    public ClientTransactionTask(Transaction transaction) {
+    int mineurPort; 
+    public ClientTransactionTask(Transaction transaction , int mineurPort) {
         this.transaction = transaction;
+        this.mineurPort = mineurPort; 
     }
 
     @Override
     public void run() {
-        ClientServeur serveur = new ClientServeur(new Socket());
+
+        ClientServeur serveur = null;
         try {
+            serveur = new ClientServeur(new Socket(Client.mineurHost, mineurPort));
             serveur.sendTransaction(transaction);
         } catch (IOException ex) {
             Util.debug(this, ex, transaction.toString() + " n'a pas pu etre envoyée ");
-            serveur.close();
+            if (serveur != null) {
+                serveur.close();
+            }
             return;
         }
         String response;

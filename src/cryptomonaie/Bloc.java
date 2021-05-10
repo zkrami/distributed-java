@@ -7,7 +7,7 @@ import java.io.Serializable;
 */
 public class Bloc implements Serializable{
 
-    Etat etat; // l'état final 
+    public Etat etat; // l'état final 
     Transaction transaction;
 
     Bloc(Etat etatFinal, Transaction transaction) {

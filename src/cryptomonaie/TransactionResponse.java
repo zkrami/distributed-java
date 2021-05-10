@@ -9,10 +9,10 @@ import java.io.Serializable;
  */
 public class TransactionResponse implements Serializable {
 
-    Transaction transaction;
-    int sel;
-    int diffculte;
-    boolean accepted;
+    public Transaction transaction;
+    public int sel;
+    public int diffculte;
+    public boolean accepted;
 
     public TransactionResponse(boolean accepted) {
         this.accepted = accepted;

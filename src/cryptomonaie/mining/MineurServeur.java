@@ -1,5 +1,7 @@
-package cryptomonaie;
+package cryptomonaie.mining;
 
+import cryptomonaie.TransactionRequest;
+import cryptomonaie.TransactionResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,7 +12,7 @@ import java.net.Socket;
 /**
  *
  * Minor serveur: Wrapper de la connexion entre le mineur et le serveur. Le
- * mineur communique avec le serveur un utilisant cette classe.
+ * mineur communique avec le serveur en utilisant cette classe.
  */
 public class MineurServeur {
 
@@ -19,9 +21,9 @@ public class MineurServeur {
     public MineurServeur(Socket socket) {
         this.socket = socket;
     }
+    ObjectInputStream ois = null;
 
     public void close() {
-
         try {
             socket.close();
         } catch (Exception ex) {
@@ -29,8 +31,10 @@ public class MineurServeur {
     }
 
     public TransactionResponse readTransactionResponse() throws IOException, ClassNotFoundException {
-        ObjectInputStream oi = new ObjectInputStream(socket.getInputStream());
-        return (TransactionResponse) oi.readObject();
+        if (ois == null) {
+            ois = new ObjectInputStream(socket.getInputStream());
+        }
+        return (TransactionResponse) ois.readObject();
     }
 
     void sendTransactionRequest(TransactionRequest transactionRequest) throws IOException {

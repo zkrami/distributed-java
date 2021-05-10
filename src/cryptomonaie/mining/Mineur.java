@@ -1,5 +1,10 @@
-package cryptomonaie;
+package cryptomonaie.mining;
 
+import cryptomonaie.Blockchaine;
+import cryptomonaie.Jonction;
+import cryptomonaie.NonInserableException;
+import cryptomonaie.TransactionResponse;
+import cryptomonaie.Util;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
@@ -8,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.InputMismatchException;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
@@ -36,13 +42,13 @@ public class Mineur {
 
     // minor ports 
     // la port sur laquelle le mineur va reçevoir de requetes des clients 
-    private final int clientPort = 3335;
+    private int clientPort = 0;
     volatile Queue<MiningTask> clientRequests = new LinkedList<>();
     ServerSocket clientRequestSocket;
     Thread clientRequestThread;
     private final ExecutorService miningExceutor;
 
-    private final ExecutorService validationExceutor;
+    private ExecutorService validationExceutor;
 
     volatile boolean interrupt;
 
@@ -102,7 +108,26 @@ public class Mineur {
         this._difficulte = null;
     }
 
-    public Mineur() throws IOException {
+    void resubmitValidation() {
+        // refaise toutes les taches dans la queue 
+        List<Runnable> tasks = this.validationExceutor.shutdownNow();
+        this.validationExceutor = Executors.newSingleThreadExecutor();
+        tasks.stream().forEach(
+                r -> {
+                    this.submitValidationTask(((ValidationTask) r).task);
+                }
+        );
+    }
+
+    /**
+     * La port sur laquelle le mineur va opérer 0 pour laisser le système
+     * choisir le port
+     *
+     * @param port
+     * @throws IOException
+     */
+    public Mineur(int port) throws IOException {
+        this.clientPort = port;
         this.clientRequestSocket = new ServerSocket(clientPort);
         this.miningExceutor = Executors.newSingleThreadExecutor();
         this.validationExceutor = Executors.newSingleThreadExecutor();
@@ -119,6 +144,8 @@ public class Mineur {
 
                     this.blockchaine.add(response.transaction, response.sel);
                     this.blockchaine.setDifficulte(response.diffculte);
+                    System.out.println("(Multicast): Le serveur a inséré une nouvelle jonction ");
+                    System.out.println(blockchaine.hashCode());
 
                 }
 
@@ -149,9 +176,11 @@ public class Mineur {
 
     void listenClients() {
         this.clientRequestThread = new Thread(() -> {
+            System.out.println("Le mineur attends des clients sur le port: " + this.clientRequestSocket.getLocalPort());
             try {
                 while (!closed) {
                     Socket client = this.clientRequestSocket.accept();
+                    System.out.println("Un nouveau client s'est connecté ");
                     this.submitMiningTask(new MiningTask(this, new MineurClient(client)));
                 }
 
@@ -194,7 +223,11 @@ public class Mineur {
 
     public static void main(String[] args) {
         try {
-            Mineur mineur = new Mineur();
+            int port = 0;
+            if (args.length > 1) {
+                port = Integer.parseInt(args[1]);
+            }
+            Mineur mineur = new Mineur(port);
             mineur.start();
 
             Scanner scan = new Scanner(System.in);

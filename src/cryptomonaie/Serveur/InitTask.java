@@ -1,5 +1,4 @@
-package cryptomonaie;
-
+package cryptomonaie.serveur;
 
 /**
  *
@@ -17,7 +16,13 @@ public class InitTask implements Runnable {
 
     @Override
     public void run() {
-        mineur.trySendChaine(serveur.blockchaine.chaine);
-
+        if(mineur.trySendChaine(serveur.blockchaine.chaine)){
+            System.out.println("(InitTask): La chaine a été envoyé ");
+        }else{
+            System.err.println("(InitTask): La chaine n'a pas été envoyé ");
+        }
+        
+        
+        
     }
 }

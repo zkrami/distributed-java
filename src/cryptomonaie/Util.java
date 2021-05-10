@@ -9,14 +9,14 @@ public abstract class Util {
     /**
      * Pour les exceptions connues
      */
-    static void debug(Object ob, Exception ex, String message) {
+    static public void debug(Object ob, Exception ex, String message) {
         System.err.println(message);
     }
 
     /**
      * Pour les exceptions non connues
      */
-    static void debug(Object ob, Exception ex) {
+    static public void debug(Object ob, Exception ex) {
         System.err.println(ob.getClass());
         System.err.println(ex);
 
