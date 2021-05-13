@@ -43,7 +43,6 @@ public class Mineur {
     // minor ports 
     // la port sur laquelle le mineur va reçevoir de requetes des clients 
     private int clientPort = 0;
-    volatile Queue<MiningTask> clientRequests = new LinkedList<>();
     ServerSocket clientRequestSocket;
     Thread clientRequestThread;
     private final ExecutorService miningExceutor;
@@ -56,6 +55,8 @@ public class Mineur {
     // au cas ou le serveur n'as pas validé une transaction de mineur, ils sont réinitialisé à null 
     volatile Jonction _last = null;
     private boolean closed;
+
+    final int cores = 8;
 
     /**
      *

@@ -1,7 +1,5 @@
 package cryptomonaie.mining;
 
-import cryptomonaie.Blockchaine;
-import cryptomonaie.Jonction;
 import cryptomonaie.TransactionRequest;
 import java.io.IOException;
 import java.net.Socket;
@@ -42,21 +40,7 @@ public class ValidationTask implements Runnable {
         task.client.tryValid();
     }
 
-    /*    boolean validate() { // verifie si la jonction est toujours valid selon le mineur 
-
-        Jonction last = this.task.mineur.getLast();
-        if (Blockchaine.validate(task.transaction, last) == false) {
-            return false;
-        }
-        Jonction jon = Blockchaine.newJonction(last, task.transaction);
-        if (Blockchaine.inserable(jon, task.sel) == false) {
-            return false;
-        }
-
-        return true;
-
-    }
-     */
+  
     @Override
     public void run() {
 

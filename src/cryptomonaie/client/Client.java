@@ -5,8 +5,6 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /*
 * Le programme de client 
@@ -75,9 +73,13 @@ public class Client {
     public static int readInt() {
         while (true) {
             try {
-                return scan.nextInt();
+                int x = scan.nextInt();
+                if (x < 0) {
+                    throw new InputMismatchException();
+                }
+                return x;
             } catch (InputMismatchException ex) {
-                System.err.println("Veuillez saisir seulement des entier merci pour ressayer ");
+                System.err.println("Veuillez saisir seulement des entiers positifs merci pour ressayer ");
             }
         }
     }
@@ -86,36 +88,24 @@ public class Client {
     public static void main(String[] args) {
 
         Client client = new Client();
-        (new Thread(() -> {
-            int tries = 0;
-            while (tries != 10) {
-                client.submitTransaction(new Transaction(10, 1, 2), 8777);
-                client.submitTransaction(new Transaction(10, 1, 2), 8778);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ex) {
-                }
-                tries++;
-            }
-        })).start();
+
         while (true) {
 
             printMenu();
             int choice = readInt();
 
             if (choice == 0) {
-
                 break;
             } else if (choice == 1) {
                 Transaction tr = readTransaction();
                 if (tr == null) {
                     continue;
                 }
+                System.out.println("Veuillez saisir le port du mineur");
+                int port = readInt();
 
-                client.submitTransaction(tr, 8777);
+                client.submitTransaction(tr, port);
 
-            } else if (choice == 2) { // for speed test 
-                client.submitTransaction(new Transaction(10, 1, 2), 8777);
             }
 
         }
