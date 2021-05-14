@@ -48,10 +48,10 @@ Afin de simplifier le lancement du projet.
 Des `jar` ont été ajoutés avec le projet. 
 
 Pour tester le projet. 
-Commencez par démarrer le serveur `java server.jar`
-Ensuite, démarrer un mineur ou plusieur `java minor.jar`
-ou `java minor.jar {port} ` pour choisir le port explicitement.
-Ensuite, lancez un client `java client.jar` et suivez l'indication pour envoyer une transaction.
+Commencez par démarrer le serveur `java -cp DistributedProgramming.jar cryptomonaie.serveur.Serveur`
+Ensuite, démarrer un mineur ou plusieur `java -cp DistributedProgramming.jar cryptomonaie.mining.Mineur`
+*Souvenez-vous du port affiché dans le mineur*
+Ensuite, lancez un client `java -cp DistributedProgramming.jar cryptomonaie.client.Client` et suivez l'indication pour envoyer une transaction.
 
 
 ## Partage des tâches effectuées au sein du binôme.
