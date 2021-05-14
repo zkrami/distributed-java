@@ -16,7 +16,7 @@ public class InitTask implements Runnable {
 
     @Override
     public void run() {
-        if(mineur.trySendChaine(serveur.blockchaine.chaine)){
+        if(mineur.trySendChaine(serveur.blockchaine)){
             System.out.println("(InitTask): La chaine a été envoyé ");
         }else{
             System.err.println("(InitTask): La chaine n'a pas été envoyé ");

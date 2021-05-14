@@ -1,5 +1,6 @@
 package cryptomonaie.serveur;
 
+import cryptomonaie.Blockchaine;
 import cryptomonaie.Jonction;
 import cryptomonaie.TransactionRequest;
 import cryptomonaie.TransactionResponse;
@@ -62,7 +63,7 @@ public class ServeurClient {
         return sent;
     }
 
-    boolean trySendChaine(ArrayList<Jonction> chaine) {
+    boolean trySendChaine(Blockchaine chaine) {
         boolean sent = false;
         try (ObjectOutputStream os = new ObjectOutputStream(socket.getOutputStream())) {
             os.writeObject(chaine);

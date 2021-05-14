@@ -1,11 +1,12 @@
 package cryptomonaie;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /*
 *   Blockchaine se consiste d'une list de jonction 
  */
-public class Blockchaine {
+public class Blockchaine implements Serializable {
 
     int difficulte = 3; // la difficulte courante de la blockchaine initializé à 3 
 

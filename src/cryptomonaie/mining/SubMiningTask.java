@@ -15,7 +15,7 @@ public class SubMiningTask implements Callable<Integer> {
     Jonction jonction;
     MiningTask master;
     boolean valideted = false;
-    
+
     int l;
     int r;
 
@@ -32,26 +32,24 @@ public class SubMiningTask implements Callable<Integer> {
     public Integer call() {
         boolean valid = false;
 
-            // @MINING 
-            int sel = -1; 
-            for (int i = this.l; i < this.r; i++) {
-                if (mineur.interrupt || master.found) {
-                    break;
-                }
-                jonction.setSel(i);
-                if (Blockchaine.inserable(jonction, mineur.getDifficulte())) {
-                    valid = true;
-                    sel = i;
-                    break;
-                }
+        // @MINING 
+        int sel = -1;
+        for (int i = l; i < r; i++) {
+            if (mineur.interrupt || master.found) {
+                break;
             }
+            jonction.setSel(i);
+            if (Blockchaine.inserable(jonction, mineur.getDifficulte())) {
+                valid = true;
+                sel = i;
+                break;
+            }
+        }
 
-            if (!valid) {
-                return -1; 
-            } 
-            return sel ;
-
-     
+        if (!valid) {
+            return -1;
+        }
+        return sel;
 
     }
 

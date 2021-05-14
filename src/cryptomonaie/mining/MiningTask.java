@@ -46,13 +46,14 @@ public class MiningTask implements Runnable {
         try {
             this.initTransaction();
             mineur.interrupt = false;
+            this.found = false; 
 
             Jonction last = this.mineur.getLast();
             if (Blockchaine.validate(transaction, last) == false) {
                 this.client.tryNotValidTransactionResponse();
                 return;
             }
-            ;
+            
 
             // @MINING diviser le travail sur les coeurs   
             int range = (int) 1e8;
@@ -83,6 +84,7 @@ public class MiningTask implements Runnable {
                     subMiningPool.shutdown();
                     jon.setSel(this.sel);
                     mineur.setLast(jon);
+                    break;
                 }
 
             }

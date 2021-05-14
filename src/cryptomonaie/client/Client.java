@@ -35,39 +35,19 @@ public class Client {
     }
 
     public static Transaction readTransaction() {
-        try {
-            Scanner scan = new Scanner(System.in);
-            int somme, payeur, receveur;
-            do {
-                System.out.println("Veuillez saisir le montant de la transaction");
-                somme = scan.nextInt();
-                if (somme <= 0) {
-                    System.err.println("Veuillez saisir un montant strictement positif ");
-                }
-            } while (somme <= 0);
+        int somme, payeur, receveur;
 
-            do {
-                System.out.println("Veuillez saisir l'indice du payeur");
-                payeur = scan.nextInt();
-                if (payeur < 0) {
-                    System.err.println("Veuillez saisir une indice positive ");
-                }
-            } while (payeur < 0);
+        System.out.println("Veuillez saisir le montant de la transaction");
+        somme = readInt();
+        System.out.println("Veuillez saisir l'indice du payeur");
+        payeur = readInt();
 
-            do {
-                System.out.println("Veuillez saisir l'indice du receveur");
-                receveur = scan.nextInt();
-                if (receveur < 0) {
-                    System.err.println("Veuillez saisir une indice positive ");
-                }
-            } while (receveur < 0);
+        System.out.println("Veuillez saisir l'indice du receveur");
+        receveur = readInt();
 
-            Transaction transaction = new Transaction(somme, payeur, receveur);
-            return transaction;
-        } catch (InputMismatchException ex) {
-            System.err.println("Veuillez saisir seulement des entier merci pour ressayer ");
-        }
-        return null;
+        Transaction transaction = new Transaction(somme, payeur, receveur);
+        return transaction;
+
     }
 
     public static int readInt() {
@@ -80,6 +60,7 @@ public class Client {
                 return x;
             } catch (InputMismatchException ex) {
                 System.err.println("Veuillez saisir seulement des entiers positifs merci pour ressayer ");
+                
             }
         }
     }

@@ -203,9 +203,9 @@ public class Mineur {
         Socket socket = new Socket(this.serverHost, this.initPort);
         System.out.println("Connecté à la porte d'initialisation");
         ObjectInputStream is = new ObjectInputStream(socket.getInputStream());
-        ArrayList<Jonction> chaine = (ArrayList<Jonction>) is.readObject();
+        Blockchaine chaine = (Blockchaine) is.readObject();
         System.out.println("La blockchaine a été reçue ");
-        this.blockchaine = new Blockchaine(chaine);
+        this.blockchaine = chaine;
         System.out.println("La blockchaine a un hash de " + this.blockchaine.hashCode());
 
     }

@@ -21,7 +21,7 @@ Pour simuler la durée de vérification d'une transaction. une command ```  Thre
 Le client envoie une transaction à un mineur choisi.
 Le client doit insérer les informations de la transaction (montant, payeur, receveur) et le port du mineur choisi.
 Le client peut envoyer plusieurs transactions sans attendre la réponse du mineur. 
-
+Si le client envoie une transaction non-valide, il recoit un message transaction non-valide. (Un payeur ou receveur qui n'existe pas, ou le payeur n'a pas le montant) 
 ### Mineur 
 
 Le mineur reçoit en permanence des transactions à valider de la part des clients.
@@ -50,6 +50,7 @@ Des `jar` ont été ajoutés avec le projet.
 Pour tester le projet. 
 Commencez par démarrer le serveur `java server.jar`
 Ensuite, démarrer un mineur ou plusieur `java minor.jar`
+ou `java minor.jar {port} ` pour choisir le port explicitement.
 Ensuite, lancez un client `java client.jar` et suivez l'indication pour envoyer une transaction.
 
 
