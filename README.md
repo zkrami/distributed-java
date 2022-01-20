@@ -1,59 +1,59 @@
-## Blockchaine centralisé 
-Le projet contient toutes les fonctionalités avant la partie avancée. 
+## Centralized Blockchain
+The project contains all the features before the advanced part.
 
-*De brefs commentaires ont également été ajoutés en tête de chaque classe pour expliquer son fonctionnement.* 
+*Brief comments have also been added to the top of each class to explain how it works.*
 
-### Serveur 
+### Server
 
-Le serveur fournit trois services aux mineurs. 
+The server provides three services to miners.
 
-- Un service d'initialisation auquel le mineur peut se connecter pour demander la blockchain actuelle du serveur. 
-*Au lieu d'initialiser la blockchain dans le mineur, le mineur demande la blockchain complète du servuer. Ce qui permet au mineur de se connecter plus tard*
+- An initialization service to which the miner can connect to request the current blockchain from the server.
+*Instead of initializing the blockchain in the miner, the miner requests the full blockchain from the server. Which allows the miner to log in later*
 
-- Un service multicast auquel le mineur peut s'abonner pour écouter en permanence les nouveaux blocs insérés. 
-*Le multicast a été implémentée en utilisant une socket `Tcp` car les messages envoyés sont importants, et il est nécessaire de s'assurer de leur arrivée*
+- A multicast service to which the miner can subscribe to constantly listen to the new blocks inserted.
+*Multicast has been implemented using a `Tcp` socket because the messages sent are important, and it is necessary to ensure their arrival*
 
-- Un service de vérification de transaction auquel le mineur peut envoyer une transaction avec un sel pour la vérifier et la diffuser. 
+- A transaction verification service to which the miner can send a transaction with a salt to verify and broadcast it.
 
-Pour simuler la durée de vérification d'une transaction. une command ```  Thread.sleep(1000); ``` a été rajouté dans la tâche de verification. Pour permettre de tester le cas où le mineur n'attend pas la réponse du serveur. 
-### Client 
+To simulate the verification time of a transaction. a command ``` Thread.sleep(1000); ``` has been added in the verification task. To allow testing the case where the miner does not wait for the response from the server.
+### Customer
 
-Le client envoie une transaction à un mineur choisi.
-Le client doit insérer les informations de la transaction (montant, payeur, receveur) et le port du mineur choisi.
-Le client peut envoyer plusieurs transactions sans attendre la réponse du mineur. 
-Si le client envoie une transaction non-valide, il recoit un message transaction non-valide. (Un payeur ou receveur qui n'existe pas, ou le payeur n'a pas le montant) 
-### Mineur 
+The client sends a transaction to a chosen miner.
+The client must insert the transaction information (amount, payer, receiver) and the port of the chosen minor.
+The client can send multiple transactions without waiting for the miner's response.
+If the client sends an invalid transaction, it receives an invalid transaction message. (A payer or receiver that does not exist, or the payer does not have the amount)
+### Minor
 
-Le mineur reçoit en permanence des transactions à valider de la part des clients.
+The miner constantly receives transactions to validate from customers.
 
-Le mineur a deux files. Une file de mining pour trouver un sel pour une transaction (`miningExceutor`), et une autre file pour vérifier le sel trouvé en communiquant avec le serveur (`validationExceutor`).
+The miner has two rows. A mining queue to find a salt for a transaction (`miningExceutor`), and another queue to verify the salt found by communicating with the server (`validationExceutor`).
 
-Le mineur a deux blockchains. Une chaîne qui est ajoutée uniquement par les transactions reçues du canal de multicast (vérifiée par le serveur).  Et une chaîne locale. 
+The miner has two blockchains. A channel that is added only by transactions received from the multicast channel (verified by the server). And a local channel.
 
-Quand le mineur trouve un nouveau sel. Il ajoute une nouvelle jonction à la chaîne locale, met la transaction dans la file de vérification et enchaîne la chaîne locale. Au cas où le mineur reçoit un refus du serveur, il arrête tout travail pour trouver un sel. Il réinitialise la chaîne locale par l'autre chaine et transmet toutes les tâches de la file de validation à la file de mining. Parce que toutes les jonctions dans la file de validation ont été construites à la base de la jonction qui a été refusée par le serveur.
+When the miner finds a new salt. It adds a new junction to the local chain, puts the transaction in the verification queue, and chains the local chain. In case the miner receives a refusal from the server, he stops all work to find a salt. It resets the local chain to the other chain and forwards all tasks from the validation queue to the mining queue. Because all the junctions in the commit queue were built based on the junction that was refused by the server.
 
-Les tâches sont transmises d'une file à l'autre de manière à exploiter au maximum le mineur mais en même temps sans en perdre aucune et sans en passer aucune sans être vérifié dans le serveur.
+The tasks are transmitted from one queue to another in such a way as to exploit the miner to the maximum but at the same time without losing any of them and without passing any of them without being verified in the server.
 
-Dans le code, il n'y a pas de chaîne locale, c'est seulement un pointeur vers la dernière jonction. Le principe est d'avoir une chaîne en laquelle on peut avoir confiance et une autre chaîne qui contient des transactions non validées.
+In the code there is no local string, it is only a pointer to the last junction. The principle is to have a chain in which we can trust and another chain which contains uncommitted transactions.
 
-Pour que le mineur n'attende pas la réponse du serveur, il essaie d'augmenter la difficulté de la même manière que le serveur.
-
-
-Lors du démarrage d'un mineur, le mineur affiche son port affectué par le système d'exploitation.
+So that the miner does not wait for the response from the server, he tries to increase the difficulty in the same way as the server.
 
 
-## Lancer le projet 
-
-Afin de simplifier le lancement du projet. 
-Des `jar` ont été ajoutés avec le projet. 
-
-Pour tester le projet. 
-Commencez par démarrer le serveur `java -cp DistributedProgramming.jar cryptomonaie.serveur.Serveur`
-Ensuite, démarrer un mineur ou plusieur `java -cp DistributedProgramming.jar cryptomonaie.mining.Mineur`
-*Souvenez-vous du port affiché dans le mineur*
-Ensuite, lancez un client `java -cp DistributedProgramming.jar cryptomonaie.client.Client` et suivez l'indication pour envoyer une transaction.
+When starting a miner, the miner displays its port assigned by the operating system.
 
 
-## Partage des tâches effectuées au sein du binôme.
-On n'a pas divisé des tâches entre nous. 
-La plus part du temps on se réunait pour travailer ensemble afin d'avancer plus vite. 
+## Launch the project
+
+In order to simplify the launch of the project.
+`jar` have been added with the project.
+
+To test the project.
+Start by starting the server `java -cp DistributedProgramming.jar cryptocurrency.server.Server`
+Then start one or more miner `java -cp DistributedProgramming.jar cryptomonaie.mining.Minor`
+*Remember the port displayed in the minor*
+Next, run a `java -cp DistributedProgramming.jar cryptocurrency.client.Client` client and follow the prompt to send a transaction.
+
+
+## Sharing of tasks carried out within the pair.
+We did not divide tasks between us.
+Most of the time we met to work together in order to move forward faster.
